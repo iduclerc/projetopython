@@ -1,0 +1,42 @@
+def delete_recipe(recipes):
+    clear_screen()
+    print("Excluir Receita\n")
+    view_recipes(recipes)
+    try:
+        index = int(input("Digite o número da receita que deseja excluir: ")) - 1
+        if 0 <= index < len(recipes):
+            confirm = input(f"Tem certeza que deseja excluir '{recipes[index].name}'? (S/N): ").strip().lower()
+            if confirm == 's':
+                del recipes[index]
+                write_recipes_to_csv(recipes, "recipes.csv")
+                input("\nReceita excluída com sucesso! Pressione Enter para continuar.")
+        else:
+            input("\nNúmero de receita inválido. Pressione Enter para continuar.")
+    except ValueError:
+        input("\nEntrada inválida. Pressione Enter para continuar.")
+
+def filter_by_country(recipes):
+    clear_screen()
+    print("Filtrar Receitas por País\n")
+    country = input("Digite o país que deseja filtrar: ").strip().capitalize()
+    filtered_recipes = [recipe for recipe in recipes if recipe.country.lower() == country.lower()]
+    if filtered_recipes:
+        view_recipes(filtered_recipes)
+    else:
+        input("\nNenhuma receita encontrada para o país especificado. Pressione Enter para continuar.")
+
+def list_favorite_recipes(recipes):
+    clear_screen()
+    print("Lista de Receitas Favoritas\n")
+    favorite_recipes = [recipe for recipe in recipes if recipe.favorite]
+    if favorite_recipes:
+        for index, recipe in enumerate(favorite_recipes, start=1):
+            print(f"{index}. {recipe.name} - {recipe.country}")
+            print("Ingredientes:", ', '.join(recipe.ingredients))
+            print("Instruções:", recipe.instructions)
+            print("Favorita: Sim")
+            print(f"Nota Média: {recipe.average_rating():.1f}")
+            print("-----------------------")
+    else:
+        print("Nenhuma receita favorita encontrada.")
+    input("\nPressione Enter para continuar.")
