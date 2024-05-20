@@ -1,3 +1,32 @@
+import os
+import random
+
+class Recipe:
+    def _init_(self, name, country, ingredients, instructions, favorite=False, ratings=None):
+        if ratings is None:
+            ratings = []
+        self.name = name
+        self.country = country
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.favorite = favorite
+        self.ratings = ratings
+
+    def _str_(self):
+        avg_rating = self.average_rating()
+        return (f"Name: {self.name}\nCountry: {self.country}\nIngredients: {', '.join(self.ingredients)}"
+                f"\nInstructions: {self.instructions}\nFavorite: {'Yes' if self.favorite else 'No'}"
+                f"\nRatings: {', '.join(map(str, self.ratings))} (Average: {avg_rating:.1f} / 5)")
+
+    def add_rating(self, rating):
+        self.ratings.append(rating)
+
+    def average_rating(self):
+        return sum(self.ratings) / len(self.ratings) if self.ratings else 0.0
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def read_recipes_from_csv(filename):
     recipes = []
     try:
