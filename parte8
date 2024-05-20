@@ -1,0 +1,11 @@
+def add_recipe(recipes):
+    clear_screen()
+    print("Adicionar Nova Receita\n")
+    name = input("Nome da Receita: ")
+    country = input("País de Origem: ")
+    ingredients = input("Ingredientes (separados por vírgula): ").split(',')
+    instructions = input("Modo de Preparo: ")
+    recipe = Recipe(name, country, ingredients, instructions)
+    recipes.append(recipe)
+    write_recipes_to_csv(recipes, "recipes.csv")
+    input("\nReceita adicionada com sucesso! Pressione Enter para continuar.")
