@@ -1,0 +1,12 @@
+def display_menu():
+    clear_screen()
+    print("=== Sistema de Gerenciamento de Receitas ===")
+    print("1. Adicionar Receita")
+    print("2. Visualizar Receitas")
+    print("3. Atualizar Receita")
+    print("4. Excluir Receita")
+    print("5. Filtrar por País")
+    print("6. Listar Receitas Favoritas")
+    print("7. Receita Aleatória")
+    print("8. Dar Nota à Receita")
+    print("9. Sair")
