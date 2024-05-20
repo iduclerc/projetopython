@@ -1,0 +1,14 @@
+def view_recipes(recipes):
+    clear_screen()
+    print("Lista de Receitas\n")
+    if not recipes:
+        print("Nenhuma receita encontrada.")
+    else:
+        for index, recipe in enumerate(recipes, start=1):
+            print(f"{index}. {recipe.name} - {recipe.country}")
+            print("Ingredientes:", ', '.join(recipe.ingredients))
+            print("Instruções:", recipe.instructions)
+            print("Favorita: Sim" if recipe.favorite else "Favorita: Não")
+            print(f"Nota Média: {recipe.average_rating():.1f}")
+            print("-----------------------")
+    input("\nPressione Enter para continuar.")
