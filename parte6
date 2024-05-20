@@ -1,0 +1,17 @@
+def read_recipes_from_csv(filename):
+    recipes = []
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.strip(): 
+                    parts = line.strip().split('|')
+                    name, country, ingredients, instructions, favorite = parts[:5]
+                    ratings = list(map(int, parts[5:])) if len(parts) > 5 else []
+                    ingredients = ingredients.split(',')
+                    favorite = favorite.lower() == 'true'
+                    recipes.append(Recipe(name, country, ingredients, instructions, favorite, ratings))
+    except FileNotFoundError:
+        print(f"O arquivo '{filename}' não foi encontrado.")
+    except Exception as e:
+        print(f"Erro ao ler o arquivo '{filename}': {e}")
+    return recipes
