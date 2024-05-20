@@ -1,0 +1,13 @@
+import os
+import random
+
+class Recipe:
+    def _init_(self, name, country, ingredients, instructions, favorite=False, ratings=None):
+        if ratings is None:
+            ratings = []
+        self.name = name
+        self.country = country
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.favorite = favorite
+        self.ratings = ratings
