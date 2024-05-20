@@ -1,0 +1,25 @@
+def update_recipe(recipes):
+    clear_screen()
+    print("Atualizar Receita\n")
+    view_recipes(recipes)
+    try:
+        index = int(input("Digite o número da receita que deseja atualizar: ")) - 1
+        if 0 <= index < len(recipes):
+            print("\nAtualize os detalhes da receita:")
+            recipes[index].name = input("Nome da Receita: ") or recipes[index].name
+            recipes[index].country = input("País de Origem: ") or recipes[index].country
+            ingredients = input("Ingredientes (separados por vírgula): ")
+            if ingredients:
+                recipes[index].ingredients = ingredients.split(',')
+            recipes[index].instructions = input("Modo de Preparo: ") or recipes[index].instructions
+            favorite = input("Marcar como favorita? (S/N): ").strip().lower()
+            if favorite == 's':
+                recipes[index].favorite = True
+            elif favorite == 'n':
+                recipes[index].favorite = False
+            write_recipes_to_csv(recipes, "recipes.csv")
+            input("\nReceita atualizada com sucesso! Pressione Enter para continuar.")
+        else:
+            input("\nNúmero de receita inválido. Pressione Enter para continuar.")
+    except ValueError:
+        input("\nEntrada inválida. Pressione Enter para continuar.")
