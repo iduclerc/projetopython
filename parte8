@@ -1,3 +1,64 @@
+
+import os
+import random
+
+class Recipe:
+    def _init_(self, name, country, ingredients, instructions, favorite=False, ratings=None):
+        if ratings is None:
+            ratings = []
+        self.name = name
+        self.country = country
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.favorite = favorite
+        self.ratings = ratings
+
+    def _str_(self):
+        avg_rating = self.average_rating()
+        return (f"Name: {self.name}\nCountry: {self.country}\nIngredients: {', '.join(self.ingredients)}"
+                f"\nInstructions: {self.instructions}\nFavorite: {'Yes' if self.favorite else 'No'}"
+                f"\nRatings: {', '.join(map(str, self.ratings))} (Average: {avg_rating:.1f} / 5)")
+
+    def add_rating(self, rating):
+        self.ratings.append(rating)
+
+    def average_rating(self):
+        return sum(self.ratings) / len(self.ratings) if self.ratings else 0.0
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def read_recipes_from_csv(filename):
+    recipes = []
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.strip(): 
+                    parts = line.strip().split('|')
+                    name, country, ingredients, instructions, favorite = parts[:5]
+                    ratings = list(map(int, parts[5:])) if len(parts) > 5 else []
+                    ingredients = ingredients.split(',')
+                    favorite = favorite.lower() == 'true'
+                    recipes.append(Recipe(name, country, ingredients, instructions, favorite, ratings))
+    except FileNotFoundError:
+        print(f"O arquivo '{filename}' não foi encontrado.")
+    except Exception as e:
+        print(f"Erro ao ler o arquivo '{filename}': {e}")
+    return recipes
+
+def display_menu():
+    clear_screen()
+    print("=== Sistema de Gerenciamento de Receitas ===")
+    print("1. Adicionar Receita")
+    print("2. Visualizar Receitas")
+    print("3. Atualizar Receita")
+    print("4. Excluir Receita")
+    print("5. Filtrar por País")
+    print("6. Listar Receitas Favoritas")
+    print("7. Receita Aleatória")
+    print("8. Dar Nota à Receita")
+    print("9. Sair")
+
 def add_recipe(recipes):
     clear_screen()
     print("Adicionar Nova Receita\n")
