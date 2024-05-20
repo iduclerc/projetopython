@@ -1,1 +1,234 @@
-teste
+import os
+import random
+
+class Recipe:
+    def _init_(self, name, country, ingredients, instructions, favorite=False, ratings=None):
+        if ratings is None:
+            ratings = []
+        self.name = name
+        self.country = country
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.favorite = favorite
+        self.ratings = ratings
+
+    def _str_(self):
+        avg_rating = self.average_rating()
+        return (f"Name: {self.name}\nCountry: {self.country}\nIngredients: {', '.join(self.ingredients)}"
+                f"\nInstructions: {self.instructions}\nFavorite: {'Yes' if self.favorite else 'No'}"
+                f"\nRatings: {', '.join(map(str, self.ratings))} (Average: {avg_rating:.1f} / 5)")
+
+    def add_rating(self, rating):
+        self.ratings.append(rating)
+
+    def average_rating(self):
+        return sum(self.ratings) / len(self.ratings) if self.ratings else 0.0
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def read_recipes_from_csv(filename):
+    recipes = []
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.strip(): 
+                    parts = line.strip().split('|')
+                    name, country, ingredients, instructions, favorite = parts[:5]
+                    ratings = list(map(int, parts[5:])) if len(parts) > 5 else []
+                    ingredients = ingredients.split(',')
+                    favorite = favorite.lower() == 'true'
+                    recipes.append(Recipe(name, country, ingredients, instructions, favorite, ratings))
+    except FileNotFoundError:
+        print(f"O arquivo '{filename}' não foi encontrado.")
+    except Exception as e:
+        print(f"Erro ao ler o arquivo '{filename}': {e}")
+    return recipes
+
+def write_recipes_to_csv(recipes, filename):
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            for recipe in recipes:
+                line = '|'.join([
+                    recipe.name,
+                    recipe.country,
+                    ','.join(recipe.ingredients),
+                    recipe.instructions,
+                    str(recipe.favorite)
+                ] + list(map(str, recipe.ratings)))
+                file.write(line + '\n')
+    except Exception as e:
+        print(f"Erro ao escrever no arquivo '{filename}': {e}")
+
+def display_menu():
+    clear_screen()
+    print("=== Sistema de Gerenciamento de Receitas ===")
+    print("1. Adicionar Receita")
+    print("2. Visualizar Receitas")
+    print("3. Atualizar Receita")
+    print("4. Excluir Receita")
+    print("5. Filtrar por País")
+    print("6. Listar Receitas Favoritas")
+    print("7. Receita Aleatória")
+    print("8. Dar Nota à Receita")
+    print("9. Sair")
+
+def add_recipe(recipes):
+    clear_screen()
+    print("Adicionar Nova Receita\n")
+    name = input("Nome da Receita: ")
+    country = input("País de Origem: ")
+    ingredients = input("Ingredientes (separados por vírgula): ").split(',')
+    instructions = input("Modo de Preparo: ")
+    recipe = Recipe(name, country, ingredients, instructions)
+    recipes.append(recipe)
+    write_recipes_to_csv(recipes, "recipes.csv")
+    input("\nReceita adicionada com sucesso! Pressione Enter para continuar.")
+
+def view_recipes(recipes):
+    clear_screen()
+    print("Lista de Receitas\n")
+    if not recipes:
+        print("Nenhuma receita encontrada.")
+    else:
+        for index, recipe in enumerate(recipes, start=1):
+            print(f"{index}. {recipe.name} - {recipe.country}")
+            print("Ingredientes:", ', '.join(recipe.ingredients))
+            print("Instruções:", recipe.instructions)
+            print("Favorita: Sim" if recipe.favorite else "Favorita: Não")
+            print(f"Nota Média: {recipe.average_rating():.1f}")
+            print("-----------------------")
+    input("\nPressione Enter para continuar.")
+
+def update_recipe(recipes):
+    clear_screen()
+    print("Atualizar Receita\n")
+    view_recipes(recipes)
+    try:
+        index = int(input("Digite o número da receita que deseja atualizar: ")) - 1
+        if 0 <= index < len(recipes):
+            print("\nAtualize os detalhes da receita:")
+            recipes[index].name = input("Nome da Receita: ") or recipes[index].name
+            recipes[index].country = input("País de Origem: ") or recipes[index].country
+            ingredients = input("Ingredientes (separados por vírgula): ")
+            if ingredients:
+                recipes[index].ingredients = ingredients.split(',')
+            recipes[index].instructions = input("Modo de Preparo: ") or recipes[index].instructions
+            favorite = input("Marcar como favorita? (S/N): ").strip().lower()
+            if favorite == 's':
+                recipes[index].favorite = True
+            elif favorite == 'n':
+                recipes[index].favorite = False
+            write_recipes_to_csv(recipes, "recipes.csv")
+            input("\nReceita atualizada com sucesso! Pressione Enter para continuar.")
+        else:
+            input("\nNúmero de receita inválido. Pressione Enter para continuar.")
+    except ValueError:
+        input("\nEntrada inválida. Pressione Enter para continuar.")
+
+def delete_recipe(recipes):
+    clear_screen()
+    print("Excluir Receita\n")
+    view_recipes(recipes)
+    try:
+        index = int(input("Digite o número da receita que deseja excluir: ")) - 1
+        if 0 <= index < len(recipes):
+            confirm = input(f"Tem certeza que deseja excluir '{recipes[index].name}'? (S/N): ").strip().lower()
+            if confirm == 's':
+                del recipes[index]
+                write_recipes_to_csv(recipes, "recipes.csv")
+                input("\nReceita excluída com sucesso! Pressione Enter para continuar.")
+        else:
+            input("\nNúmero de receita inválido. Pressione Enter para continuar.")
+    except ValueError:
+        input("\nEntrada inválida. Pressione Enter para continuar.")
+
+def filter_by_country(recipes):
+    clear_screen()
+    print("Filtrar Receitas por País\n")
+    country = input("Digite o país que deseja filtrar: ").strip().capitalize()
+    filtered_recipes = [recipe for recipe in recipes if recipe.country.lower() == country.lower()]
+    if filtered_recipes:
+        view_recipes(filtered_recipes)
+    else:
+        input("\nNenhuma receita encontrada para o país especificado. Pressione Enter para continuar.")
+
+def list_favorite_recipes(recipes):
+    clear_screen()
+    print("Lista de Receitas Favoritas\n")
+    favorite_recipes = [recipe for recipe in recipes if recipe.favorite]
+    if favorite_recipes:
+        for index, recipe in enumerate(favorite_recipes, start=1):
+            print(f"{index}. {recipe.name} - {recipe.country}")
+            print("Ingredientes:", ', '.join(recipe.ingredients))
+            print("Instruções:", recipe.instructions)
+            print("Favorita: Sim")
+            print(f"Nota Média: {recipe.average_rating():.1f}")
+            print("-----------------------")
+    else:
+        print("Nenhuma receita favorita encontrada.")
+    input("\nPressione Enter para continuar.")
+
+def random_recipe(recipes):
+    clear_screen()
+    print("Receita Aleatória\n")
+    if recipes:
+        recipe = random.choice(recipes)
+        print(recipe)
+    else:
+        print("Nenhuma receita disponível.")
+    input("\nPressione Enter para continuar.")
+
+def rate_recipe(recipes):
+    clear_screen()
+    print("Dar Nota à Receita\n")
+    view_recipes(recipes)
+    try:
+        index = int(input("Digite o número da receita que deseja dar uma nota: ")) - 1
+        if 0 <= index < len(recipes):
+            rating = int(input("Digite a nota (1-5): "))
+            if 1 <= rating <= 5:
+                recipes[index].add_rating(rating)
+                write_recipes_to_csv(recipes, "recipes.csv")
+                input("\nNota adicionada com sucesso! Pressione Enter para continuar.")
+            else:
+                input("\nNota inválida. Pressione Enter para continuar.")
+        else:
+            input("\nNúmero de receita inválido. Pressione Enter para continuar.")
+    except ValueError:
+        input("\nEntrada inválida. Pressione Enter para continuar.")
+
+def main():
+    filename = "recipes.csv"
+    if not os.path.exists(filename):
+        open(filename, "w", encoding='utf-8').close()
+
+    recipes = read_recipes_from_csv(filename)
+
+    while True:
+        display_menu()
+        choice = input("Escolha uma opção: ")
+        if choice == '1':
+            add_recipe(recipes)
+        elif choice == '2':
+            view_recipes(recipes)
+        elif choice == '3':
+            update_recipe(recipes)
+        elif choice == '4':
+            delete_recipe(recipes)
+        elif choice == '5':
+            filter_by_country(recipes)
+        elif choice == '6':
+            list_favorite_recipes(recipes)
+        elif choice == '7':
+            random_recipe(recipes)
+        elif choice == '8':
+            rate_recipe(recipes)
+        elif choice == '9':
+            print("Saindo do sistema...")
+            break
+        else:
+            input("Opção inválida. Pressione Enter para continuar.")
+
+if _name_ == "_main_":
+    main()
